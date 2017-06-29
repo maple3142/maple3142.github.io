@@ -26,7 +26,7 @@ const router=new VueRouter({
 var app=new Vue({
 	el: '#app',
 	data: {
-		login: localStorage.login||false,
+		login: localStorage.login=='true'||false,
 		name: localStorage.name||'guest'
 	},
 	components: { navbar },
