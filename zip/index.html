@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>zip</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="js/jquery.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/vue.min.js"></script>
+        <script src="js/jszip.min.js"></script>
+        <script src="js/moment.js"></script>
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/style.css">
+        <style>
+            .full-width-div{
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                left: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="zip" class="container">
+            <div @dragover="prevent" @drop="drop" class="full-width-div">
+                <label class="btn btn-default btn-file">
+                    Select Zip <input style="display:none;" type="file" v-model="zip" accept="application/zip" @change="filehandle" class="file">
+                </label>
+                <button class="btn btn-default" v-if="check>0" @click="m_open">Download Selected</button>
+                <span v-if="failed">zip load failed</span>
+                <table id="list" class="table table-striped" v-if="!failed">
+                    <thead>
+                        <th><input type="checkbox" v-model="all" @change="toggle"></th>
+                        <th>name</th>
+                        <th>date</th>
+                    </thead>
+                    <tbody>
+                        <tr v-for="i in files" v-if="!i.dir">
+                            <td><input type="checkbox" v-model="i.checked" @change="oncheck"></td>
+                            <td class="col-md-8"><a href="#" @click="open(i.name)">{{i.name}}</a></td>
+                            <td class="col-md-3">{{moment(i.date).format('YYYY/MM/DD HH:mm')}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <script>
+            var a=document.createElement('a');
+            moment.locale(navigator.language);
+            var zip=new Vue({
+                el: '#zip',
+                data: {
+                    zip: null,
+                    files: {},
+                    failed: false,
+                    check: 0,
+                    all: false
+                },
+                methods: {
+                    filehandle(e){
+                        var self=this;
+                        var jz=new JSZip();
+                        jz.loadAsync(e.target.files[0]).then(z=>{
+                            this.failed=false;
+                            var o={};
+                            for(i in z.files){
+                                if(z.files.hasOwnProperty(i)){
+                                    var e=z.files[i];
+                                    o[i]={
+                                        name: e.name,
+                                        data: e.date,
+                                        dir: e.dir,
+                                        _data: e._data,
+                                        checked: false
+                                    };
+                                }
+                            }
+                            self.files=o;
+                        },()=>this.failed=true);
+                    },
+                    open(i){
+                        var f=this.files[i];
+                        var blob=new Blob([f._data.compressedContent]);
+                        a.href=window.URL.createObjectURL(blob);
+                        a.download=f.name.split('/').pop();
+                        a.click();
+                        a.remove();
+                    },
+                    m_open(){
+                        for(i in this.files){
+                            if(this.files.hasOwnProperty(i)){
+                                if(this.files[i].checked)this.open(i);
+                            }
+                        }
+                    },
+                    drop(e){
+                        this.prevent(e)
+                        var ee={
+                            target:{
+                                files: [e.dataTransfer.files[0]]
+                            }
+                        };
+                        this.filehandle(ee);
+                    },
+                    prevent(e){
+                        e.stopPropagation();
+                        e.preventDefault();
+                    },
+                    oncheck(e){
+                        if(e.target.checked)this.check++;
+                        else this.check--;
+                        this.all=this.check>0;
+                    },
+                    toggle(e){
+                        var v=e.target.checked;
+                        for(i in this.files){
+                            if(this.files.hasOwnProperty(i)){
+                                this.files[i].checked=v;
+                            }
+                        }
+                        if(!v)this.check=0;
+                        else this.check=Object.keys(this.files).length;
+                        this.all=this.check>0;
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

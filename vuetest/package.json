@@ -1,0 +1,30 @@
+{
+  "name": "oj",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "babel": {
+    "presets": [
+      "es2015"
+    ],
+    "plugins": [
+      "transform-runtime"
+    ]
+  },
+  "scripts": {
+    "dev": "webpack-dev-server"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "bootstrap-vue": "^0.16.1",
+    "vue": "^2.3.4"
+  },
+  "devDependencies": {
+    "raw-loader": "^0.5.1",
+    "style-loader": "^0.18.2",
+    "url-loader": "^0.5.9",
+    "vue-template-compiler": "^2.3.4"
+  }
+}
