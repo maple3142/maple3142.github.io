@@ -15,32 +15,35 @@
         <nav></nav>
         <div id="mcapp" class="container">
 			<div class="row">
-				<div class="col-md-4 col-md-offset-4 container">
-					<div class="input-group row">
-						<input type="text" v-model="id" class="form-control">
+				<div class="spinner" v-show="loading"></div>
+				<div class="col-xs-12 col-sm-12 col-md-8 offset-md-2 container" v-show="!loading">
+					<div class="input-group">
+						<input id="id" type="text" v-model="id" class="form-control">
 						<span class="input-group-btn">
 							<button class="btn btn-default" v-on:click="query">Query</button>
 						</span>
 					</div>
-					<div>
-						uuid: <input type="text" v-bind:value="uuid" class="form-control">
+					<div class="form-group">
+						<label for="uuid">uuid:</label>
+						<input id="uuid" type="text" :value="uuid" class="form-control" disabled="true">
 					</div>
-					<div class="col-md-offset-4 vcenter row">
-						<img v-bind:src="skinurl" class="img-responsive">
-						<button class="btn btn-default" v-on:click="skindl">Download Skin</button>
+					<img :src="skinurl" class="mx-auto d-block">
+					<br>
+					<button class="btn btn-default col-md-12 col-xs-12 col-sm-12 " v-on:click="skindl">Download skin</button>
+					<div class="table-responsive">
+						<table class="table">
+							<thead>
+								<td><strong>name</strong></td>
+								<td><strong>time</strong></td>
+							</thead>
+							<tbody>
+								<tr v-for="row in list">
+									<td>{{row.name}}</td>
+									<td>{{row.time}}</td>
+								</tr>
+							</tbody>
+						</table>
 					</div>
-					<table class="table table-hover" v-if="list.length>0">
-						<thead>
-							<td><strong>name</strong></td>
-							<td><strong>time</strong></td>
-						</thead>
-						<tbody>
-							<tr v-for="row in list">
-								<td>{{row.name}}</td>
-								<td>{{row.time}}</td>
-							</tr>
-						</tbody>
-					</table>
 				</div>
 			</div>
         </div>
@@ -52,21 +55,25 @@
                     id: 'notch',
                     skinurl: 'img/notch.png',
                     uuid: '069a79f444e94726a5befca90e38aaf5',
-                    list: []
+                    list: [],
+					loading: false
                 },
                 methods: {
                     query: function(){
+						this.loading=true;
                         this.skinurl='https://mcapi.ca/skin/'+this.id;
                         $.getJSON('https://script.google.com/macros/s/AKfycbxGECEuQVcdyK6oc6RyFpEYsF0nAEg5-sqR3xOZN7dbP2DDHcSs/exec?id='+this.id).then(x=>{
                             mcapp.uuid=x.id;
-                            $.getJSON('https://script.google.com/macros/s/AKfycbwixmeeIwtfVytanTQMOAMb0nO2pIvV--R-O7JzOYj7NlPaGGM/exec?id='+x.id).then(h=>{
-                                h=h.map(e=>{
-                                    e.time=moment(e.changedToAt).fromNow();
-                                    return e;
-                                });
-                                this.list=h.slice(1);
+							console.log(`uuid: ${x.id}`);
+                            return $.getJSON('https://script.google.com/macros/s/AKfycbwixmeeIwtfVytanTQMOAMb0nO2pIvV--R-O7JzOYj7NlPaGGM/exec?id='+x.id);
+                        }).then(h=>{
+                            h=h.map(e=>{
+                                e.time=moment(e.changedToAt).fromNow();
+                                return e;
                             });
-                        });
+                            this.list=h.slice(1);
+							this.loading=false;
+                        }).catch(e=>console.error).catch(e=>console.error);
                     },
                     skindl: function(){
                         var a=document.createElement('a');
