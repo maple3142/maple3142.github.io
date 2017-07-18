@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>MC viewer</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script src="/js/jquery.js"></script>
-        <script src="/js/bootstrap.min.js"></script>
-        <script src="/js/vue.min.js"></script>
-        <script src="/js/moment.js"></script>
-        <link rel="stylesheet" href="/css/bootstrap.min.css">
-    </head>
-    <body>
-        <nav></nav>
-        <div id="mcapp" class="container">
+	<head>
+		<title>MC viewer</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script src="/js/jquery.js"></script>
+		<script src="/js/vue.min.js"></script>
+		<script src="/js/moment.js"></script>
+		<link rel="stylesheet" href="/css/bootstrap.min.css">
+		<link rel="stylesheet" href="/css/spinner.css">
+	</head>
+	<body>
+		<div id="mcapp" class="container">
+			<div class="spinner" v-show="loading"></div>
 			<div class="row">
-				<div class="spinner" v-show="loading"></div>
 				<div class="col-xs-12 col-sm-12 col-md-8 offset-md-2 container" v-show="!loading">
 					<div class="input-group">
 						<input id="id" type="text" v-model="id" class="form-control" @keyup.enter="query">
@@ -45,44 +44,47 @@
 					</div>
 				</div>
 			</div>
-        </div>
-        <script>
-            moment.locale(navigator.language);
-            var mcapp=new Vue({
-                el: '#mcapp',
-                data: {
-                    id: 'notch',
-                    skinurl: 'img/notch.png',
-                    uuid: '069a79f444e94726a5befca90e38aaf5',
-                    list: [],
+		</div>
+		<script>
+			moment.locale(navigator.language);
+			var mcapp=new Vue({
+				el: '#mcapp',
+				data: {
+					id: 'notch',
+					skinurl: 'img/notch.png',
+					uuid: '069a79f444e94726a5befca90e38aaf5',
+					list: [],
 					loading: false
-                },
-                methods: {
-                    query: function(){
+				},
+				methods: {
+					query: function(){
 						this.loading=true;
-                        this.skinurl='https://mcapi.ca/skin/'+this.id;
-                        $.getJSON('https://script.google.com/macros/s/AKfycbxGECEuQVcdyK6oc6RyFpEYsF0nAEg5-sqR3xOZN7dbP2DDHcSs/exec?id='+this.id).then(x=>{
-                            mcapp.uuid=x.id;
-							console.log(`uuid: ${x.id}`);
-                            return $.getJSON('https://script.google.com/macros/s/AKfycbwixmeeIwtfVytanTQMOAMb0nO2pIvV--R-O7JzOYj7NlPaGGM/exec?id='+x.id);
-                        }).then(h=>{
-                            h=h.map(e=>{
-                                e.time=moment(e.changedToAt).fromNow();
-                                return e;
-                            });
-                            this.list=h.slice(1);
+						this.skinurl='https://mcapi.ca/skin/'+this.id;
+						$.getJSON('https://script.google.com/macros/s/AKfycbxGECEuQVcdyK6oc6RyFpEYsF0nAEg5-sqR3xOZN7dbP2DDHcSs/exec?id='+this.id).then(x=>{
+							mcapp.uuid=x.id;
+							return $.getJSON('https://script.google.com/macros/s/AKfycbwixmeeIwtfVytanTQMOAMb0nO2pIvV--R-O7JzOYj7NlPaGGM/exec?id='+x.id);
+						}).then(h=>{
+							h=h.map(e=>{
+								e.time=moment(e.changedToAt).fromNow();
+								return e;
+							});
+							this.list=h.slice(1);
 							this.loading=false;
-                        }).catch(e=>console.error).catch(e=>console.error);
-                    },
-                    skindl: function(){
-                        var a=document.createElement('a');
-                        a.href='https://mcapi.ca/rawskin/'+this.id;
-                        a.download=this.id+'.png';
-                        a.click();
-                        a.parentElement.removeChild(a);
-                    }
-                }
-            });
-        </script>
-    </body>
+						}).catch(ex.bind(this)).catch(ex.bind(this));
+					},
+					skindl: function(){
+						var a=document.createElement('a');
+						a.href='https://mcapi.ca/rawskin/'+this.id;
+						a.download=this.id+'.png';
+						a.click();
+						a.parentElement.removeChild(a);
+					}
+				}
+			});
+			function ex(e){
+				alert(e.statusText);
+				this.loading=false;
+			}
+		</script>
+	</body>
 </html>
