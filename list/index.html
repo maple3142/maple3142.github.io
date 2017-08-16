@@ -4,18 +4,19 @@
 	<title>Vue list test</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 	<script src="/js/vue.min.js"></script>
-	<link href="/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+	<link href="/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 	<div class="container">
-		<div class="row">
-			<div class="col-xs-12 col-sm-12 offset-md-4 col-md-4 offset-lg-4 col-lg-4" id="app">
+		<div class="row justify-content-md-center">
+			<div class="col col-xs-12 col-sm-12 col-md-4 col-lg-4" id="app">
 				<div class="input-group">
 					<input v-model="search" @keyup.enter="add(search)" placeholder="type to search, enter to add" class="form-control">
 				</div>
 				<span>Regex options:</span>
 				<div v-for="i in ['g','i']" class="form-check form-check-inline">
-					<label class="form-check-label"><input class="form-check-input" type="checkbox" :value="i" v-model="rgxoptions">{{ i }}</label>
+					<label class="form-check-label">
+					<input class="form-check-input" type="checkbox" :value="i" v-model="rgxoptions">{{ i }}</label>
 				</div>
 				<ul class="list-group">
 					<li v-for="(item,idx) in list" v-if="check(item)" @click="remove(idx)" class="list-group-item">{{ item }}</li>

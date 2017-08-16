@@ -13,8 +13,8 @@
 	<body>
 		<div id="mcapp" class="container">
 			<div class="spinner" v-show="loading"></div>
-			<div class="row">
-				<div class="col-xs-12 col-sm-12 col-md-8 offset-md-2 container" v-show="!loading">
+			<div class="row justify-content-md-center">
+				<div class="col col-xs-12 col-sm-12 col-md-8 container" v-show="!loading">
 					<div class="input-group">
 						<input id="id" type="text" v-model="id" class="form-control" @keyup.enter="query">
 						<span class="input-group-btn">
