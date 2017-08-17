@@ -60,17 +60,18 @@
 					query: function(){
 						this.loading=true;
 						this.skinurl='https://mcapi.ca/skin/'+this.id;
-						$.getJSON('https://script.google.com/macros/s/AKfycbxGECEuQVcdyK6oc6RyFpEYsF0nAEg5-sqR3xOZN7dbP2DDHcSs/exec?id='+this.id).then(x=>{
-							mcapp.uuid=x.id;
-							return $.getJSON('https://script.google.com/macros/s/AKfycbwixmeeIwtfVytanTQMOAMb0nO2pIvV--R-O7JzOYj7NlPaGGM/exec?id='+x.id);
-						}).then(h=>{
-							h=h.map(e=>{
+						$.get('https://minecraft-player-query-w1yw2fehpufe.runkit.sh/'+this.id).then(data=>{
+							this.uuid=data.uuid;
+							var hs=data.history.map(e=>{
 								e.time=moment(e.changedToAt).fromNow();
 								return e;
-							});
-							this.list=h.slice(1);
+							})
+							this.list=hs.slice(1);
 							this.loading=false;
-						}).catch(ex.bind(this)).catch(ex.bind(this));
+						}).catch(e=>{
+							alert(e.statusText);
+							this.loading=false;
+						})
 					},
 					skindl: function(){
 						var a=document.createElement('a');
@@ -81,10 +82,6 @@
 					}
 				}
 			});
-			function ex(e){
-				alert(e.statusText);
-				this.loading=false;
-			}
 		</script>
 	</body>
 </html>
