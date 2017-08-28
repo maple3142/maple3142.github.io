@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="/css/icon.css">
+	<link rel="stylesheet" href="/css/materialize.min.css">
+	<script src="/js/jquery.js"></script>
+	<script src="/js/materialize.min.js"></script>
+	<title>Youtube</title>
+</head>
+
+<body>
+	<nav class="nav-border">
+		<div class="nav-wrapper">
+			<form id="search" autocomplete="off">
+				<div class="input-field fix">
+					<input type="search" id="s-input" name="q" required>
+					<label class="label-icon" for="s-input">
+				<i class="material-icons">search</i>
+			  </label>
+					<i class="material-icons">close</i>
+				</div>
+			</form>
+		</div>
+	</nav>
+	<div class="container">
+		<div id="modal" class="modal fh">
+			<iframe id="video" class="fh" frameborder="0" allowfullscreen="allowfullscreen"></iframe>
+		</div>
+		<div class="row">
+			<div class="s12" id="list"></div>
+		</div>
+	</div>
+	<script>
+		const apikey = 'AIzaSyDMTOpY5RsFyMs8a7qAMrRWO59WuFFvbVo'
+		$.fn.extend({
+			json() {
+				var a = this.serializeArray()
+				var o = {}
+				a.forEach(e => o[e.name] = e.value)
+				return o
+			}
+		})
+		$('#modal').modal({
+			complete() {
+				$('#video').attr('src', '')
+			}
+		})
+		$('#search').on('submit', async e => {
+			e.preventDefault()
+			var data = $('#search').json()
+			data.part = 'snippet'
+			data.key = apikey
+			data.maxResults = 20
+			var res = await $.get('https://www.googleapis.com/youtube/v3/search', data)
+			$('#list').empty()
+			res.items.forEach(video => {
+				if (video.id.kind === 'youtube#video') {
+					let playhandler = () => {
+						$('#video').attr('src', `https://www.youtube.com/embed/${video.id.videoId}?feature=oembed&autoplay=1`)
+						$('#modal').modal('open')
+					}
+					let openhandler = e => open(`https://youtu.be/${video.id.videoId}`, '_blank')
+					$('#list').append(
+						$('<div>').addClass('card').append(
+							$('<div>').addClass('card-image').append(
+								$('<img>').attr('src', video.snippet.thumbnails.high.url)
+									.on('click', playhandler)
+							).append(
+								$('<span>').addClass('card-title pointer').append(video.snippet.title)
+									.on('click', openhandler)
+								).append(
+								$('<a>').addClass('btn-floating halfway-fab waves-effect waves-light red').append(
+									$('<i>').addClass('material-icons').append('play_arrow')
+								).on('click', playhandler)
+								)
+						).append(
+							$('<div>').addClass('card-content').append(
+								$('<p>').append(video.snippet.description)
+							)
+							)
+					)
+				}
+				else if (video.id.kind === 'youtube#channel') {
+					$('#list').append(
+						$('<div>').addClass('card horizontal').append(
+							$('<div>').addClass('card-image').append(
+								$('<img>').attr('src', video.snippet.thumbnails.high.url)
+							)
+						).append(
+							$('<div>').addClass('card-stacked').append(
+								$('<div>').addClass('card-content').append(
+									$('<h3>').append(video.snippet.title)
+								).append(
+									$('<p>').append(video.snippet.description)
+									)
+							).append(
+								$('<div>').addClass('card-action').append(
+									$('<a>')
+										.attr('href', `https://www.youtube.com/channel/${video.id.channelId}`)
+										.attr('target', '_blank')
+										.append('Channel')
+								)
+								)
+							)
+					)
+				}
+			})
+		})
+	</script>
+</body>
+
+</html>
